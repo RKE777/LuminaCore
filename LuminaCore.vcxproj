@@ -25,7 +25,7 @@
     <ClCompile Include="dependencies\imGUI\include\imGUI\imgui_tables.cpp" />
     <ClCompile Include="dependencies\imGUI\include\imGUI\imgui_widgets.cpp" />
     <ClCompile Include="source\Engine.cpp" />
-    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\imGUI\include\imGUI\imconfig-SFML.h" />
