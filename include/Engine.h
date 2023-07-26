@@ -19,9 +19,7 @@ namespace luminaCore {
 		const int WINDOW_HEIGHT = 720;
 
 		sf::RenderWindow window; 
-		sf::Clock deltaClock;
-
-		
+		sf::Clock dtGUI;
 
 		float frameTime = 0.0;
 

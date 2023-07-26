@@ -92,5 +92,8 @@
     <ClInclude Include="dependencies\imPlot\include\implot\implot_internal.h">
       <Filter>Header Files\dependencies</Filter>
     </ClInclude>
+    <ClInclude Include="include\Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

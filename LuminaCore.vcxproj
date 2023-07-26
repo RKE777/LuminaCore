@@ -43,6 +43,7 @@
     <ClInclude Include="dependencies\imGUI\include\imGUI\imstb_truetype.h" />
     <ClInclude Include="dependencies\imPlot\include\implot\implot.h" />
     <ClInclude Include="dependencies\imPlot\include\implot\implot_internal.h" />
+    <ClInclude Include="include\Buffer.h" />
     <ClInclude Include="include\Engine.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

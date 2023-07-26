@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "Buffer.h"
 
 #include <iostream>
 
@@ -15,16 +16,13 @@ luminaCore::Engine::Engine() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT)
 	
 	IMGUI_CHECKVERSION();
 	ImGui::SFML::Init(window);
-
 	ImPlot::CreateContext();
-
 	std::cout << "luminaCore::Engine initialized." << std::endl;
 }
 
 luminaCore::Engine::~Engine() {
 
 	ImPlot::DestroyContext();
-
 	ImGui::SFML::Shutdown();
 	std::cout << "luminaCore::Engine shutdown." << std::endl;
 }
@@ -84,6 +82,7 @@ void luminaCore::Engine::handleEvents() {
 
 void luminaCore::Engine::handleInputs() {
 
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
 		window.close();
 	}
@@ -97,15 +96,27 @@ void luminaCore::Engine::handleInputs() {
 void luminaCore::Engine::layoutGUI() {
 
 
-	ImGui::SFML::Update(window, deltaClock.restart());
+	ImGui::SFML::Update(window, dtGUI.restart());
 	ImGuiIO& io = ImGui::GetIO();
+
+	static float t = 0;
+	static ScrollingBuffer frameTimeBuffer;
+	t += ImGui::GetIO().DeltaTime;
+
+	frameTimeBuffer.AddPoint(t, frameTime * 1000.0);
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Frametime: %.3f ms", 1000.0 / io.Framerate);
 	ImGui::Text("FPS: %.1f", io.Framerate);
-	ImPlot::BeginPlot("test");
-	ImPlot::PlotDummy("test");
+
+	ImPlot::BeginPlot("Frametime Graph", ImVec2(-1, 150), ImPlotFlags_NoFrame | ImPlotFlags_NoTitle | ImPlotFlags_Crosshairs | ImPlotFlags_NoLegend);
+	ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines, ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines);
+	ImPlot::SetupAxisLimits(ImAxis_X1, t - 10, t, ImGuiCond_Always);
+	ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 20);
+	ImPlot::PlotLine("test", &frameTimeBuffer.Data[0].x, &frameTimeBuffer.Data[0].y, frameTimeBuffer.Data.size(), 0, frameTimeBuffer.Offset, 2 * sizeof(float));
 	ImPlot::EndPlot();
+
+
 	ImGui::End();
 
 
