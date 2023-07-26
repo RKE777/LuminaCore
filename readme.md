@@ -1,7 +1,7 @@
 # LuminaCore
 
 LuminaCore Engine// is in develompent~<br>
-**!!IT IS NOT INTENDED FOR USE^^**
+**IT IS NOT INTENDED FOR ANY USE**
 
 REPOSITORY<br>
 [github.com/RKE777/LuminaCore]
