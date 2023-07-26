@@ -363,5 +363,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/sfml-audio-2.dll
 *.dll
