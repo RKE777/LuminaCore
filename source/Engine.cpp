@@ -2,6 +2,13 @@
 #include "Buffer.h"
 
 #include <iostream>
+#include <Windows.h>
+
+
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
+
 
 #include <imgui/imgui.h>
 #include <imgui/imgui-SFML.h>
@@ -12,6 +19,7 @@
 luminaCore::Engine::Engine() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE) {
 
 	window.setVerticalSyncEnabled(true);
+
 	//window.setFramerateLimit(60);
 	
 	IMGUI_CHECKVERSION();
@@ -75,6 +83,7 @@ void luminaCore::Engine::handleEvents() {
 		case sf::Event::Closed:
 			window.close();
 			break;
+
 		}
 
 	}
@@ -89,11 +98,11 @@ void luminaCore::Engine::handleInputs() {
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
 
-		std::cout << "test" << std::endl;
 	}
 }
 
 void luminaCore::Engine::layoutGUI() {
+
 
 
 	ImGui::SFML::Update(window, dtGUI.restart());
@@ -103,26 +112,38 @@ void luminaCore::Engine::layoutGUI() {
 	static ScrollingBuffer frameTimeBuffer;
 	t += ImGui::GetIO().DeltaTime;
 
+
+	//ImGui::ShowDemoWindow();
+	//ImPlot::ShowDemoWindow();
+
 	frameTimeBuffer.AddPoint(t, frameTime * 1000.0);
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Frametime: %.3f ms", 1000.0 / io.Framerate);
 	ImGui::Text("FPS: %.1f", io.Framerate);
 
-	ImPlot::BeginPlot("Frametime Graph", ImVec2(-1, 150), ImPlotFlags_NoFrame | ImPlotFlags_NoTitle | ImPlotFlags_Crosshairs | ImPlotFlags_NoLegend);
-	ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines, ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines);
-	ImPlot::SetupAxisLimits(ImAxis_X1, t - 10, t, ImGuiCond_Always);
-	ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 20);
-	ImPlot::PlotLine("test", &frameTimeBuffer.Data[0].x, &frameTimeBuffer.Data[0].y, frameTimeBuffer.Data.size(), 0, frameTimeBuffer.Offset, 2 * sizeof(float));
-	ImPlot::EndPlot();
+	if (ImPlot::BeginPlot("Frametime Graph", ImVec2(-1, 80), ImPlotFlags_NoFrame | ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs)) {
+		ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoTickMarks, ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines);
+		ImPlot::SetupAxisLimits(ImAxis_X1, t - 10, t, ImGuiCond_Always);
 
+		//stuff to get the refresh rate of the monitor the window is currently beeing rendered to with vsync framelock enabled. wacky stuff, i know
+		HWND hWnd = window.getSystemHandle();
+		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+		MONITORINFOEX monitorInfo;
+		monitorInfo.cbSize = sizeof(MONITORINFOEX);
+		GetMonitorInfo(hMonitor, &monitorInfo);
 
-	ImGui::End();
+		DEVMODE dm;
+		dm.dmSize = sizeof(dm);
+		EnumDisplaySettings(monitorInfo.szDevice, ENUM_CURRENT_SETTINGS, &dm);
 
+		unsigned int refreshRate = dm.dmDisplayFrequency;
+		//end
 
-	ImGui::Begin("Debug 2");
-	ImGui::Text("Frametime: %.3f ms", frameTime * 1000.0);
-	ImGui::Text("FPS: %.1f", 1.0 / frameTime);
+		ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 2 * 1000.0 / refreshRate, ImGuiCond_Always);
+		ImPlot::PlotLine("Frametime", &frameTimeBuffer.Data[0].x, &frameTimeBuffer.Data[0].y, frameTimeBuffer.Data.size(), 0, frameTimeBuffer.Offset, 2 * sizeof(float));
+		ImPlot::EndPlot();
+	}
 	ImGui::End();
 
 	ImGui::Begin("Circle");
