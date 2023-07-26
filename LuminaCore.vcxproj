@@ -21,9 +21,13 @@
   <ItemGroup>
     <ClCompile Include="dependencies\imGUI\include\imGUI\imgui-SFML.cpp" />
     <ClCompile Include="dependencies\imGUI\include\imGUI\imgui.cpp" />
+    <ClCompile Include="dependencies\imGUI\include\imGUI\imgui_demo.cpp" />
     <ClCompile Include="dependencies\imGUI\include\imGUI\imgui_draw.cpp" />
     <ClCompile Include="dependencies\imGUI\include\imGUI\imgui_tables.cpp" />
     <ClCompile Include="dependencies\imGUI\include\imGUI\imgui_widgets.cpp" />
+    <ClCompile Include="dependencies\imPlot\include\implot\implot.cpp" />
+    <ClCompile Include="dependencies\imPlot\include\implot\implot_demo.cpp" />
+    <ClCompile Include="dependencies\imPlot\include\implot\implot_items.cpp" />
     <ClCompile Include="source\Engine.cpp" />
     <ClCompile Include="source\Main.cpp" />
   </ItemGroup>
@@ -37,6 +41,8 @@
     <ClInclude Include="dependencies\imGUI\include\imGUI\imstb_rectpack.h" />
     <ClInclude Include="dependencies\imGUI\include\imGUI\imstb_textedit.h" />
     <ClInclude Include="dependencies\imGUI\include\imGUI\imstb_truetype.h" />
+    <ClInclude Include="dependencies\imPlot\include\implot\implot.h" />
+    <ClInclude Include="dependencies\imPlot\include\implot\implot_internal.h" />
     <ClInclude Include="include\Engine.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -97,7 +103,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\imGUI\include\;$(SolutionDir)include\;$(SolutionDir)dependencies\SFML\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\imPlot\include\;$(SolutionDir)dependencies\imGUI\include\;$(SolutionDir)include\;$(SolutionDir)dependencies\SFML\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -115,7 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\imGUI\include\;$(SolutionDir)include\;$(SolutionDir)dependencies\SFML\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\imPlot\include\;$(SolutionDir)dependencies\imGUI\include\;$(SolutionDir)include\;$(SolutionDir)dependencies\SFML\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -133,7 +139,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\imGUI\include\;$(SolutionDir)include\;$(SolutionDir)dependencies\SFML\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\imPlot\include\;$(SolutionDir)dependencies\imGUI\include\;$(SolutionDir)include\;$(SolutionDir)dependencies\SFML\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -151,7 +157,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\imGUI\include\;$(SolutionDir)include\;$(SolutionDir)dependencies\SFML\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\imPlot\include\;$(SolutionDir)dependencies\imGUI\include\;$(SolutionDir)include\;$(SolutionDir)dependencies\SFML\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

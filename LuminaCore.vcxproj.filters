@@ -42,6 +42,18 @@
     <ClCompile Include="source\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dependencies\imGUI\include\imGUI\imgui_demo.cpp">
+      <Filter>Source Files\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\imPlot\include\implot\implot.cpp">
+      <Filter>Source Files\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\imPlot\include\implot\implot_demo.cpp">
+      <Filter>Source Files\dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\imPlot\include\implot\implot_items.cpp">
+      <Filter>Source Files\dependencies</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\imGUI\include\imGUI\imstb_rectpack.h">
@@ -73,6 +85,12 @@
     </ClInclude>
     <ClInclude Include="include\Engine.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\imPlot\include\implot\implot.h">
+      <Filter>Header Files\dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\imPlot\include\implot\implot_internal.h">
+      <Filter>Header Files\dependencies</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

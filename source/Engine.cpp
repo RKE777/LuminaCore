@@ -2,20 +2,28 @@
 
 #include <iostream>
 
-#include <imGUI/imgui.h>
-#include <imGUI/imgui-SFML.h>
+#include <imgui/imgui.h>
+#include <imgui/imgui-SFML.h>
+
+#include <implot/implot.h>
 
 
 luminaCore::Engine::Engine() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE) {
 
 	window.setVerticalSyncEnabled(true);
 	//window.setFramerateLimit(60);
-
+	
+	IMGUI_CHECKVERSION();
 	ImGui::SFML::Init(window);
+
+	ImPlot::CreateContext();
+
 	std::cout << "luminaCore::Engine initialized." << std::endl;
 }
 
 luminaCore::Engine::~Engine() {
+
+	ImPlot::DestroyContext();
 
 	ImGui::SFML::Shutdown();
 	std::cout << "luminaCore::Engine shutdown." << std::endl;
@@ -26,6 +34,7 @@ void luminaCore::Engine::run() {
 	initalizeAssets();
 
 	sf::Clock frameTimer;
+
 
 	while (window.isOpen()) {
 
@@ -44,8 +53,14 @@ void luminaCore::Engine::run() {
 void luminaCore::Engine::initalizeAssets() {
 
 	circle1.setRadius(200.0);
-	circle1.setFillColor(sf::Color(255 * 1.0, 255 * 1.0, 255 * 1.0, 255 * 1.0));
+	circle1.setFillColor(sf::Color(255, 255, 255, 255 ));
 	circle1.setPointCount(64);
+
+	texture1.loadFromFile("assets/sprite.png");
+	sprite1.setTexture(texture1);
+	sprite1.setTextureRect(sf::IntRect(0, 0, 32, 32));
+	sprite1.setPosition(500.0, 100);
+	sprite1.setScale(4.0, 4.0);
 
 }
 
@@ -81,11 +96,22 @@ void luminaCore::Engine::handleInputs() {
 
 void luminaCore::Engine::layoutGUI() {
 
+
 	ImGui::SFML::Update(window, deltaClock.restart());
+	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui::Begin("Debug");
-	ImGui::Text("Frametime: %.2f ms", frameTime * 1000.0);
-	ImGui::Text("FPS: %.0f", 1.0 / frameTime);
+	ImGui::Text("Frametime: %.3f ms", 1000.0 / io.Framerate);
+	ImGui::Text("FPS: %.1f", io.Framerate);
+	ImPlot::BeginPlot("test");
+	ImPlot::PlotDummy("test");
+	ImPlot::EndPlot();
+	ImGui::End();
+
+
+	ImGui::Begin("Debug 2");
+	ImGui::Text("Frametime: %.3f ms", frameTime * 1000.0);
+	ImGui::Text("FPS: %.1f", 1.0 / frameTime);
 	ImGui::End();
 
 	ImGui::Begin("Circle");
@@ -98,7 +124,7 @@ void luminaCore::Engine::layoutGUI() {
 void luminaCore::Engine::updateFrame() {
 
 	circle1.setRadius(circle1size);
-	circle1.setFillColor(sf::Color(255 * circle1color[0], 255 * circle1color[1], 255 * circle1color[2], 255 * circle1color[3]));
+	circle1.setFillColor(sf::Color((sf::Uint8)255 * circle1color[0], (sf::Uint8)255 * circle1color[1], (sf::Uint8)255 * circle1color[2], (sf::Uint8)255 * circle1color[3]));
 }
 
 void luminaCore::Engine::renderFrame() {
@@ -107,6 +133,7 @@ void luminaCore::Engine::renderFrame() {
 
 	//render
 	window.draw(circle1);
+	window.draw(sprite1);
 
 	ImGui::SFML::Render(window);
 	window.display();
