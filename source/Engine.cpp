@@ -7,7 +7,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-#include <SFML/System.hpp>
 
 
 #include <imgui/imgui.h>
@@ -16,7 +15,7 @@
 #include <implot/implot.h>
 
 
-luminaCore::Engine::Engine() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE) {
+Engine::Engine() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE) {
 
 	window.setVerticalSyncEnabled(true);
 
@@ -28,49 +27,80 @@ luminaCore::Engine::Engine() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT)
 	std::cout << "luminaCore::Engine initialized." << std::endl;
 }
 
-luminaCore::Engine::~Engine() {
+Engine::~Engine() {
 
 	ImPlot::DestroyContext();
 	ImGui::SFML::Shutdown();
 	std::cout << "luminaCore::Engine shutdown." << std::endl;
 }
 
-void luminaCore::Engine::run() {
+void Engine::run() {
 
 	initalizeAssets();
 
 	sf::Clock frameTimer;
 
+	std::shared_ptr<Entity> test = std::make_shared<Entity>("assets/sprite.png");
+
+	test->setScale(10.0, 10.0);
+	//test.setScale(5.0, 5.0);
+	entities.push_back(test);
+	
+
 
 	while (window.isOpen()) {
 
 
+		
 		handleEvents();
 		handleInputs();
 		layoutGUI();
 		updateFrame();
 		renderFrame();
 
+
 		frameTime = frameTimer.getElapsedTime().asSeconds();
 		frameTimer.restart();
 	}
 }
 
-void luminaCore::Engine::initalizeAssets() {
+void Engine::initalizeAssets() {
 
 	circle1.setRadius(200.0);
 	circle1.setFillColor(sf::Color(255, 255, 255, 255 ));
 	circle1.setPointCount(64);
 
-	texture1.loadFromFile("assets/sprite.png");
-	sprite1.setTexture(texture1);
-	sprite1.setTextureRect(sf::IntRect(0, 0, 32, 32));
-	sprite1.setPosition(500.0, 100);
-	sprite1.setScale(4.0, 4.0);
+	std::vector<std::string> files = { "assets/test.png", "assets/sprite.png"};
+	//std::vector<std::shared_ptr<sf::Texture>> textures;
+	//std::vector<sf::Sprite> sprites;
+
+	for (const auto& file : files) {
+		auto texture = std::make_shared<sf::Texture>();
+		if (!texture->loadFromFile(file)) {
+			// Handle error if the texture fails to load
+			std::cerr << "Error loading texture: " << file << std::endl;
+		}
+		else {
+			textures.push_back(texture);
+			sprites.emplace_back(*texture); // Construct sprite using the texture
+		}
+	}
+
+
+
+
+	//config
+	sprites.at(0).setTextureRect(sf::Rect(0, 0, 1920, 1080));
+	sprites.at(0).setScale(0.5, 0.5);
+
+	sprites.at(1).setTextureRect(sf::IntRect(0, 0, 32, 32));
+	sprites.at(1).setPosition(500.0, 100);
+	sprites.at(1).setScale(4.0, 4.0);
+
 
 }
 
-void luminaCore::Engine::handleEvents() {
+void Engine::handleEvents() {
 
 	sf::Event event;
 
@@ -89,7 +119,7 @@ void luminaCore::Engine::handleEvents() {
 	}
 }
 
-void luminaCore::Engine::handleInputs() {
+void Engine::handleInputs() {
 
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
@@ -101,7 +131,7 @@ void luminaCore::Engine::handleInputs() {
 	}
 }
 
-void luminaCore::Engine::layoutGUI() {
+void Engine::layoutGUI() {
 
 
 
@@ -119,7 +149,7 @@ void luminaCore::Engine::layoutGUI() {
 	frameTimeBuffer.AddPoint(t, frameTime * 1000.0);
 
 	ImGui::Begin("Debug");
-	ImGui::Text("Application running since %.0fs", t);
+	ImGui::Text("Application running since %.1fs", t);
 	ImGui::Text("Frametime: %.3f ms", 1000.0 / io.Framerate);
 	ImGui::Text("FPS: %.1f", io.Framerate);
 
@@ -142,9 +172,13 @@ void luminaCore::Engine::layoutGUI() {
 		//end
 
 		ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 2 * 1000.0 / refreshRate, ImGuiCond_Always);
-		ImPlot::PlotLine("Frametime", &frameTimeBuffer.Data[0].x, &frameTimeBuffer.Data[0].y, frameTimeBuffer.Data.size(), 0, frameTimeBuffer.Offset, 2 * sizeof(float));
+		ImPlot::PlotLine("Frametime", &frameTimeBuffer.data[0].x, &frameTimeBuffer.data[0].y, frameTimeBuffer.data.size(), 0, frameTimeBuffer.offset, 2 * sizeof(float));
 		ImPlot::EndPlot();
 	}
+
+	ImGui::NewLine();
+	ImGui::Text("Debug Options");
+	ImGui::Checkbox("Show Vertecies", &drawDebug);
 	ImGui::End();
 
 	ImGui::Begin("Circle");
@@ -154,19 +188,39 @@ void luminaCore::Engine::layoutGUI() {
 
 }
 
-void luminaCore::Engine::updateFrame() {
+void Engine::updateFrame() {
 
 	circle1.setRadius(circle1size);
+	circle1.setOrigin(circle1size, circle1size);
+	sf::Vector2 mouse = sf::Mouse::getPosition(window);
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+		circle1.setPosition(mouse.x, mouse.y);
+	}
 	circle1.setFillColor(sf::Color((sf::Uint8)255 * circle1color[0], (sf::Uint8)255 * circle1color[1], (sf::Uint8)255 * circle1color[2], (sf::Uint8)255 * circle1color[3]));
 }
 
-void luminaCore::Engine::renderFrame() {
+void Engine::renderFrame() {
 
 	window.clear(sf::Color::Black);
 
 	//render
-	window.draw(circle1);
-	window.draw(sprite1);
+
+	for (auto sprite : sprites)
+	{
+		window.draw(sprite);
+	}
+
+	for (const auto &entity : entities) {
+
+		window.draw(*entity);
+		if (drawDebug) {
+			entity->drawDebug(window, sf::RenderStates::Default);
+		}
+
+	}
+
+
+	//window.draw(circle1);
 
 	ImGui::SFML::Render(window);
 	window.display();

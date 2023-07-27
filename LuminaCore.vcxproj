@@ -29,6 +29,7 @@
     <ClCompile Include="dependencies\imPlot\include\implot\implot_demo.cpp" />
     <ClCompile Include="dependencies\imPlot\include\implot\implot_items.cpp" />
     <ClCompile Include="source\Engine.cpp" />
+    <ClCompile Include="source\Entity.cpp" />
     <ClCompile Include="source\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -45,6 +46,7 @@
     <ClInclude Include="dependencies\imPlot\include\implot\implot_internal.h" />
     <ClInclude Include="include\Buffer.h" />
     <ClInclude Include="include\Engine.h" />
+    <ClInclude Include="include\Entity.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

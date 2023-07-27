@@ -54,6 +54,9 @@
     <ClCompile Include="dependencies\imPlot\include\implot\implot_items.cpp">
       <Filter>Source Files\dependencies</Filter>
     </ClCompile>
+    <ClCompile Include="source\Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\imGUI\include\imGUI\imstb_rectpack.h">
@@ -93,6 +96,9 @@
       <Filter>Header Files\dependencies</Filter>
     </ClInclude>
     <ClInclude Include="include\Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

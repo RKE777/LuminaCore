@@ -2,7 +2,7 @@
 
 int main() {
 
-    luminaCore::Engine engine;
+    Engine engine;
     engine.run();
 
     return 0;

@@ -369,4 +369,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 *.dll
-/assets/test.png
+/assets/test.png #i dont think i have the rights to this image
