@@ -4,6 +4,7 @@
 #include <SFML/Window.hpp>
 
 #include <string>
+#include <iostream>
 
 Entity::Entity(std::string file) {
 

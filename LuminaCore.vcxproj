@@ -46,6 +46,7 @@
     <ClInclude Include="dependencies\imPlot\include\implot\implot_internal.h" />
     <ClInclude Include="include\Buffer.h" />
     <ClInclude Include="include\Engine.h" />
+    <ClInclude Include="include\EngineConfig.h" />
     <ClInclude Include="include\Entity.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

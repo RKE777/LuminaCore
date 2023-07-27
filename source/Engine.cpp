@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Buffer.h"
+#include "EngineConfig.h"
 
 #include <iostream>
 #include <Windows.h>
@@ -40,13 +41,6 @@ void Engine::run() {
 
 	sf::Clock frameTimer;
 
-	std::shared_ptr<Entity> test = std::make_shared<Entity>("assets/sprite.png");
-
-	test->setScale(10.0, 10.0);
-	//test.setScale(5.0, 5.0);
-	entities.push_back(test);
-	
-
 
 	while (window.isOpen()) {
 
@@ -62,42 +56,24 @@ void Engine::run() {
 		frameTime = frameTimer.getElapsedTime().asSeconds();
 		frameTimer.restart();
 	}
+	
+
 }
 
 void Engine::initalizeAssets() {
 
-	circle1.setRadius(200.0);
-	circle1.setFillColor(sf::Color(255, 255, 255, 255 ));
-	circle1.setPointCount(64);
+	std::vector<std::string> files = { "assets/bg.png", "assets/dude.png" , "assets/cat.png"};
 
-	std::vector<std::string> files = { "assets/test.png", "assets/sprite.png"};
-	//std::vector<std::shared_ptr<sf::Texture>> textures;
-	//std::vector<sf::Sprite> sprites;
 
 	for (const auto& file : files) {
-		auto texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile(file)) {
-			// Handle error if the texture fails to load
-			std::cerr << "Error loading texture: " << file << std::endl;
-		}
-		else {
-			textures.push_back(texture);
-			sprites.emplace_back(*texture); // Construct sprite using the texture
-		}
+
+		std::shared_ptr<Entity> entityTemp = std::make_shared<Entity>(file);
+		entities.push_back(entityTemp);
 	}
 
-
-
-
-	//config
-	sprites.at(0).setTextureRect(sf::Rect(0, 0, 1920, 1080));
-	sprites.at(0).setScale(0.5, 0.5);
-
-	sprites.at(1).setTextureRect(sf::IntRect(0, 0, 32, 32));
-	sprites.at(1).setPosition(500.0, 100);
-	sprites.at(1).setScale(4.0, 4.0);
-
-
+	entities.at(0)->scale(2.0/3.0, 2.0 / 3.0);
+	entities.at(1)->scale(2.0, 2.0);
+	entities.at(2)->scale(5.0, 5.0);
 }
 
 void Engine::handleEvents() {
@@ -108,32 +84,57 @@ void Engine::handleEvents() {
 
 		ImGui::SFML::ProcessEvent(event);
 
-		switch (event.type) {
+		if (event.type == sf::Event::Closed) {
 
-		case sf::Event::Closed:
 			window.close();
-			break;
-
 		}
-
 	}
 }
 
 void Engine::handleInputs() {
 
+	const float movementSpeed = 150.0;
+	const int playerNumber = 2;
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
 		window.close();
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) { //up
 
+		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x, entities.at(playerNumber)->getPosition().y - (movementSpeed * frameTime));
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) { //down
+		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x, entities.at(playerNumber)->getPosition().y + (movementSpeed * frameTime));
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) { //left
+		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x - (movementSpeed * frameTime), entities.at(playerNumber)->getPosition().y);
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) { //right
+		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x + (movementSpeed * frameTime), entities.at(playerNumber)->getPosition().y);
+
+	}
+	//dont judge my colision stuff, its only that i dont loose my man in a tragic accident
+	if (entities.at(playerNumber)->getPosition().x < 0.0) {
+		entities.at(playerNumber)->setPosition(0.0, entities.at(playerNumber)->getPosition().y);
+	}
+	if (entities.at(playerNumber)->getPosition().x > static_cast<float>(WINDOW_WIDTH)) {
+		entities.at(playerNumber)->setPosition(static_cast<float>(WINDOW_WIDTH), entities.at(playerNumber)->getPosition().y);
+	}
+
+	if (entities.at(playerNumber)->getPosition().y < 0.0) {
+		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x, 0.0);
+	}
+	if (entities.at(playerNumber)->getPosition().y > static_cast<float>(WINDOW_HEIGHT)) {
+		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x, static_cast<float>(WINDOW_HEIGHT));
+		// accidently typed window_width here and lost one to the void, im sorry may the lord have mercy on him, i am so terribly sorry
 	}
 }
 
 void Engine::layoutGUI() {
-
-
 
 	ImGui::SFML::Update(window, dtGUI.restart());
 	ImGuiIO& io = ImGui::GetIO();
@@ -181,46 +182,24 @@ void Engine::layoutGUI() {
 	ImGui::Checkbox("Show Vertecies", &drawDebug);
 	ImGui::End();
 
-	ImGui::Begin("Circle");
-	ImGui::DragFloat("Size", &circle1size, 1.0, 100.0, 400.0);
-	ImGui::ColorEdit4("Color", circle1color, ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_PickerHueBar);
-	ImGui::End();
-
 }
 
 void Engine::updateFrame() {
-
-	circle1.setRadius(circle1size);
-	circle1.setOrigin(circle1size, circle1size);
-	sf::Vector2 mouse = sf::Mouse::getPosition(window);
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
-		circle1.setPosition(mouse.x, mouse.y);
-	}
-	circle1.setFillColor(sf::Color((sf::Uint8)255 * circle1color[0], (sf::Uint8)255 * circle1color[1], (sf::Uint8)255 * circle1color[2], (sf::Uint8)255 * circle1color[3]));
+	
 }
 
 void Engine::renderFrame() {
 
 	window.clear(sf::Color::Black);
 
-	//render
-
-	for (auto sprite : sprites)
-	{
-		window.draw(sprite);
-	}
-
 	for (const auto &entity : entities) {
 
 		window.draw(*entity);
+
 		if (drawDebug) {
 			entity->drawDebug(window, sf::RenderStates::Default);
 		}
-
 	}
-
-
-	//window.draw(circle1);
 
 	ImGui::SFML::Render(window);
 	window.display();
