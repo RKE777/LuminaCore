@@ -119,10 +119,11 @@ void luminaCore::Engine::layoutGUI() {
 	frameTimeBuffer.AddPoint(t, frameTime * 1000.0);
 
 	ImGui::Begin("Debug");
+	ImGui::Text("Application running since %.0fs", t);
 	ImGui::Text("Frametime: %.3f ms", 1000.0 / io.Framerate);
 	ImGui::Text("FPS: %.1f", io.Framerate);
 
-	if (ImPlot::BeginPlot("Frametime Graph", ImVec2(-1, 80), ImPlotFlags_NoFrame | ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs)) {
+	if (ImPlot::BeginPlot("Frametime Graph", ImVec2(-1, 100), ImPlotFlags_NoFrame | ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs)) {
 		ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoTickMarks, ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines);
 		ImPlot::SetupAxisLimits(ImAxis_X1, t - 10, t, ImGuiCond_Always);
 
@@ -148,7 +149,7 @@ void luminaCore::Engine::layoutGUI() {
 
 	ImGui::Begin("Circle");
 	ImGui::DragFloat("Size", &circle1size, 1.0, 100.0, 400.0);
-	ImGui::ColorEdit4("Color", circle1color, NULL);
+	ImGui::ColorEdit4("Color", circle1color, ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_PickerHueBar);
 	ImGui::End();
 
 }
