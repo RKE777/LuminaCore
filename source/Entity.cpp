@@ -27,6 +27,25 @@ Entity::Entity(std::string file) {
 	vertices[3].position = sf::Vector2f(0.0, height);
 	vertices[4].position = sf::Vector2f(width, 0.0);
 	vertices[5].position = sf::Vector2f(width, height);
+
+
+	//gen transparent hack stuff
+	sf::Vector2u textureSize = texture.getSize();
+
+	sf::Image image;
+	image.create(textureSize.x, textureSize.y);
+
+	for (unsigned int x = 0; x < textureSize.x; ++x) {
+		for (unsigned int y = 0; y < textureSize.y; ++y) {
+			sf::Color pixelColor = image.getPixel(x, y);
+			pixelColor.a = 0;
+			image.setPixel(x, y, pixelColor);
+		}
+	}
+
+	transparent.loadFromImage(image);
+	//i hope image gets destroyed after this, i dont know anythign aout lifetime haha
+
 }
 
 Entity::~Entity() {
@@ -44,24 +63,26 @@ void Entity::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 void Entity::drawDebug(sf::RenderTarget& target, sf::RenderStates states) const {
 
-    states.transform *= getTransform();
-	states.blendMode = sf::BlendMin;
+     states.transform *= getTransform();
 
-	target.draw(vertices, states);
+    for (std::size_t i = 0; i < vertices.getVertexCount(); i += 3) {
+        sf::Vertex triangleOutline[] = {
+            vertices[i + 0],
+            vertices[i + 1],
+            vertices[i + 2],
+            vertices[i + 0]
+        };
 
-	// Draw the triangle outlines in red
-	for (std::size_t i = 0; i < vertices.getVertexCount(); i += 3) {
-		sf::Vertex triangleOutline[] = {
-			vertices[i + 0],
-			vertices[i + 1],
-			vertices[i + 2],
-			vertices[i + 0]
-		};
+        for (std::size_t j = 0; j < 4; ++j) {
+            triangleOutline[j].color = sf::Color::Red;
+        }
 
-		for (std::size_t j = 0; j < 4; ++j) {
-			triangleOutline[j].color = sf::Color::Black;
-		}
-
-		target.draw(triangleOutline, 4, sf::LineStrip, states);
+        target.draw(triangleOutline, 4, sf::LineStrip, states);
     }
+
+	//hacky stuff to get the vertex shapes to draw, without drawing a white missing texture box
+    sf::RenderStates textureStates = states;
+    textureStates.blendMode = sf::BlendAlpha;
+    textureStates.texture = &transparent;
+    target.draw(vertices, textureStates);
 }

@@ -14,5 +14,6 @@ public:
 private:
 
 	sf::Texture texture;
+	sf::Texture transparent;
 	sf::VertexArray vertices;
 };
