@@ -111,10 +111,12 @@ void Engine::handleInputs() {
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) { //left
 		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x - (movementSpeed * frameTime), entities.at(playerNumber)->getPosition().y);
+			entities.at(playerNumber)->setScale(5.0, 5.0);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) { //right
 		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x + (movementSpeed * frameTime), entities.at(playerNumber)->getPosition().y);
+		entities.at(playerNumber)->setScale(-5.0, 5.0);
 
 	}
 	//dont judge my colision stuff, its only that i dont loose my man in a tragic accident
