@@ -370,3 +370,5 @@ MigrationBackup/
 FodyWeavers.xsd
 *.dll
 /assets/test.png #i dont think i have the rights to this image
+/assets/aspr saves
+/assets/bg.png
