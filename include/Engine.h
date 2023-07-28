@@ -29,5 +29,5 @@ private:
 	float frameTime = 0.0;
 	bool drawDebug = false;
 
-	std::vector<std::shared_ptr<Entity>> entities;
+	std::vector<Entity> entities;
 };

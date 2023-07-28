@@ -26,8 +26,8 @@ Engine::Engine() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TIT
 
 Engine::~Engine() {
 
-	for (const auto& entity : entities) {
-		entity->~Entity();
+	for (const auto &entity : entities) {
+		entity.~Entity();
 	}
 
 	ImPlot::DestroyContext();
@@ -59,17 +59,16 @@ void Engine::initalizeAssets() {
 
 	std::vector<std::string> files = { "assets/bg.png", "assets/dude.png" , "assets/cat.png"};
 
-	for (const auto& file : files) {
+	for (const auto &file : files) {
 
-		std::shared_ptr<Entity> entityTemp = std::make_shared<Entity>(file);
-		entities.push_back(entityTemp);
+		entities.push_back(Entity(file));
 	}
 
 	//TODO: reliable tracking of entities
 	//Settings
-	entities.at(0)->scale(4.0, 4.0);
-	entities.at(1)->scale(8.0, 8.0);
-	entities.at(2)->scale(5.0, 5.0);
+	entities.at(0).scale(4.0, 4.0);
+	entities.at(1).scale(8.0, 8.0);
+	entities.at(2).scale(5.0, 5.0);
 }
 
 void Engine::handleEvents() {
@@ -99,40 +98,40 @@ void Engine::handleInputs() {
 	}
 
 	auto updatePlayerPosition = [this](float x, float y) {
-		entities.at(playerNumber)->setPosition(x, y);
+		entities.at(playerNumber).setPosition(x, y);
 	};
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-		updatePlayerPosition(entities.at(playerNumber)->getPosition().x, entities.at(playerNumber)->getPosition().y - movementSpeed * frameTime);
+		updatePlayerPosition(entities.at(playerNumber).getPosition().x, entities.at(playerNumber).getPosition().y - movementSpeed * frameTime);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
-		updatePlayerPosition(entities.at(playerNumber)->getPosition().x, entities.at(playerNumber)->getPosition().y + movementSpeed * frameTime);
+		updatePlayerPosition(entities.at(playerNumber).getPosition().x, entities.at(playerNumber).getPosition().y + movementSpeed * frameTime);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-		updatePlayerPosition(entities.at(playerNumber)->getPosition().x - movementSpeed * frameTime, entities.at(playerNumber)->getPosition().y);
+		updatePlayerPosition(entities.at(playerNumber).getPosition().x - movementSpeed * frameTime, entities.at(playerNumber).getPosition().y);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-		updatePlayerPosition(entities.at(playerNumber)->getPosition().x + movementSpeed * frameTime, entities.at(playerNumber)->getPosition().y);
+		updatePlayerPosition(entities.at(playerNumber).getPosition().x + movementSpeed * frameTime, entities.at(playerNumber).getPosition().y);
 	}
 
 
-	if (entities.at(playerNumber)->getPosition().x < 0.0f) {
-		updatePlayerPosition(0.0f, entities.at(playerNumber)->getPosition().y);
+	if (entities.at(playerNumber).getPosition().x < 0.0f) {
+		updatePlayerPosition(0.0f, entities.at(playerNumber).getPosition().y);
 	}
 
-	if (entities.at(playerNumber)->getPosition().x > static_cast<float>(WINDOW_WIDTH)) {
-		updatePlayerPosition(static_cast<float>(WINDOW_WIDTH), entities.at(playerNumber)->getPosition().y);
+	if (entities.at(playerNumber).getPosition().x > static_cast<float>(WINDOW_WIDTH)) {
+		updatePlayerPosition(static_cast<float>(WINDOW_WIDTH), entities.at(playerNumber).getPosition().y);
 	}
 
-	if (entities.at(playerNumber)->getPosition().y < 0.0f) {
-		updatePlayerPosition(entities.at(playerNumber)->getPosition().x, 0.0f);
+	if (entities.at(playerNumber).getPosition().y < 0.0f) {
+		updatePlayerPosition(entities.at(playerNumber).getPosition().x, 0.0f);
 	}
 
-	if (entities.at(playerNumber)->getPosition().y > static_cast<float>(WINDOW_HEIGHT)) {
-		updatePlayerPosition(entities.at(playerNumber)->getPosition().x, static_cast<float>(WINDOW_HEIGHT));
+	if (entities.at(playerNumber).getPosition().y > static_cast<float>(WINDOW_HEIGHT)) {
+		updatePlayerPosition(entities.at(playerNumber).getPosition().x, static_cast<float>(WINDOW_HEIGHT));
 	}
 }
 
@@ -190,10 +189,10 @@ void Engine::renderFrame() {
 
 	window.clear(sf::Color::Black);
 
-	for (const auto &entity : entities) {
-		window.draw(*entity);
+	for (const auto entity : entities) {
+		window.draw(entity);
 		if (drawDebug) {
-			entity->drawDebug(window, sf::RenderStates::Default);
+			entity.drawDebug(window, sf::RenderStates::Default);
 		}
 	}
 
