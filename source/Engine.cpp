@@ -1,26 +1,22 @@
+#include "EngineConfig.h"
 #include "Engine.h"
 #include "Buffer.h"
-#include "EngineConfig.h"
 
 #include <iostream>
 #include <Windows.h>
 
-
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
-
 #include <imgui/imgui.h>
 #include <imgui/imgui-SFML.h>
-
 #include <implot/implot.h>
 
 
 Engine::Engine() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE) {
 
 	window.setVerticalSyncEnabled(true);
-
-	//window.setFramerateLimit(60);
+	//window.setFramerateLimit(120);
 	
 	IMGUI_CHECKVERSION();
 	ImGui::SFML::Init(window);
@@ -30,6 +26,10 @@ Engine::Engine() : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TIT
 
 Engine::~Engine() {
 
+	for (const auto& entity : entities) {
+		entity->~Entity();
+	}
+
 	ImPlot::DestroyContext();
 	ImGui::SFML::Shutdown();
 	std::cout << "luminaCore::Engine shutdown." << std::endl;
@@ -38,32 +38,26 @@ Engine::~Engine() {
 void Engine::run() {
 
 	initalizeAssets();
-
-	sf::Clock frameTimer;
-
+	sf::Clock dtFrame;
 
 	while (window.isOpen()) {
 
-
-		
 		handleEvents();
-		handleInputs();
+		if (window.hasFocus()) {
+			handleInputs();
+		}
 		layoutGUI();
 		updateFrame();
 		renderFrame();
 
-
-		frameTime = frameTimer.getElapsedTime().asSeconds();
-		frameTimer.restart();
+		frameTime = dtFrame.getElapsedTime().asSeconds();
+		dtFrame.restart();
 	}
-	
-
 }
 
 void Engine::initalizeAssets() {
 
 	std::vector<std::string> files = { "assets/bg.png", "assets/dude.png" , "assets/cat.png"};
-
 
 	for (const auto& file : files) {
 
@@ -71,8 +65,10 @@ void Engine::initalizeAssets() {
 		entities.push_back(entityTemp);
 	}
 
-	entities.at(0)->scale(2.0/3.0, 2.0 / 3.0);
-	entities.at(1)->scale(2.0, 2.0);
+	//TODO: reliable tracking of entities
+	//Settings
+	entities.at(0)->scale(4.0, 4.0);
+	entities.at(1)->scale(8.0, 8.0);
 	entities.at(2)->scale(5.0, 5.0);
 }
 
@@ -93,6 +89,8 @@ void Engine::handleEvents() {
 
 void Engine::handleInputs() {
 
+	//TODO: input + colission is temporary
+
 	const float movementSpeed = 150.0;
 	const int playerNumber = 2;
 
@@ -100,90 +98,88 @@ void Engine::handleInputs() {
 		window.close();
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) { //up
+	auto updatePlayerPosition = [this](float x, float y) {
+		entities.at(playerNumber)->setPosition(x, y);
+	};
 
-		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x, entities.at(playerNumber)->getPosition().y - (movementSpeed * frameTime));
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+		updatePlayerPosition(entities.at(playerNumber)->getPosition().x, entities.at(playerNumber)->getPosition().y - movementSpeed * frameTime);
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) { //down
-		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x, entities.at(playerNumber)->getPosition().y + (movementSpeed * frameTime));
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+		updatePlayerPosition(entities.at(playerNumber)->getPosition().x, entities.at(playerNumber)->getPosition().y + movementSpeed * frameTime);
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) { //left
-		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x - (movementSpeed * frameTime), entities.at(playerNumber)->getPosition().y);
-			entities.at(playerNumber)->setScale(5.0, 5.0);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+		updatePlayerPosition(entities.at(playerNumber)->getPosition().x - movementSpeed * frameTime, entities.at(playerNumber)->getPosition().y);
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) { //right
-		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x + (movementSpeed * frameTime), entities.at(playerNumber)->getPosition().y);
-		entities.at(playerNumber)->setScale(-5.0, 5.0);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+		updatePlayerPosition(entities.at(playerNumber)->getPosition().x + movementSpeed * frameTime, entities.at(playerNumber)->getPosition().y);
+	}
 
+
+	if (entities.at(playerNumber)->getPosition().x < 0.0f) {
+		updatePlayerPosition(0.0f, entities.at(playerNumber)->getPosition().y);
 	}
-	//dont judge my colision stuff, its only that i dont loose my man in a tragic accident
-	if (entities.at(playerNumber)->getPosition().x < 0.0) {
-		entities.at(playerNumber)->setPosition(0.0, entities.at(playerNumber)->getPosition().y);
-	}
+
 	if (entities.at(playerNumber)->getPosition().x > static_cast<float>(WINDOW_WIDTH)) {
-		entities.at(playerNumber)->setPosition(static_cast<float>(WINDOW_WIDTH), entities.at(playerNumber)->getPosition().y);
+		updatePlayerPosition(static_cast<float>(WINDOW_WIDTH), entities.at(playerNumber)->getPosition().y);
 	}
 
-	if (entities.at(playerNumber)->getPosition().y < 0.0) {
-		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x, 0.0);
+	if (entities.at(playerNumber)->getPosition().y < 0.0f) {
+		updatePlayerPosition(entities.at(playerNumber)->getPosition().x, 0.0f);
 	}
+
 	if (entities.at(playerNumber)->getPosition().y > static_cast<float>(WINDOW_HEIGHT)) {
-		entities.at(playerNumber)->setPosition(entities.at(playerNumber)->getPosition().x, static_cast<float>(WINDOW_HEIGHT));
-		// accidently typed window_width here and lost one to the void, im sorry may the lord have mercy on him, i am so terribly sorry
+		updatePlayerPosition(entities.at(playerNumber)->getPosition().x, static_cast<float>(WINDOW_HEIGHT));
 	}
 }
 
 void Engine::layoutGUI() {
 
-	ImGui::SFML::Update(window, dtGUI.restart());
-	ImGuiIO& io = ImGui::GetIO();
-
-	static float t = 0;
+	static ImGuiIO& io = ImGui::GetIO();
 	static ScrollingBuffer frameTimeBuffer;
-	t += ImGui::GetIO().DeltaTime;
+	static float t = 0.0;
 
+	ImGui::SFML::Update(window, dtGUI.restart());
 
-	//ImGui::ShowDemoWindow();
-	//ImPlot::ShowDemoWindow();
-
+	t += frameTime;
 	frameTimeBuffer.AddPoint(t, frameTime * 1000.0);
 
 	ImGui::Begin("Debug");
-	ImGui::Text("Application running since %.1fs", t);
-	ImGui::Text("Frametime: %.3f ms", 1000.0 / io.Framerate);
+	ImGui::Text("Running: %.1fs", t);
 	ImGui::Text("FPS: %.1f", io.Framerate);
+	ImGui::Text("FrameTime: %.3f ms", 1000.0 / io.Framerate);
 
-	if (ImPlot::BeginPlot("Frametime Graph", ImVec2(-1, 100), ImPlotFlags_NoFrame | ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs)) {
-		ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoTickMarks, ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines);
-		ImPlot::SetupAxisLimits(ImAxis_X1, t - 10, t, ImGuiCond_Always);
+	if (ImPlot::BeginPlot("FrameTime Graph", ImVec2(-1, 75), ImPlotFlags_NoFrame | ImPlotFlags_CanvasOnly | ImPlotFlags_NoInputs)) {
+		ImPlot::PushStyleColor(ImPlotCol_PlotBg, { sf::Color::Transparent }); //Transparent Background
 
-		//stuff to get the refresh rate of the monitor the window is currently beeing rendered to with vsync framelock enabled. wacky stuff, i know
-		HWND hWnd = window.getSystemHandle();
-		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
-		MONITORINFOEX monitorInfo;
-		monitorInfo.cbSize = sizeof(MONITORINFOEX);
-		GetMonitorInfo(hMonitor, &monitorInfo);
+		//stuff to get the refresh rate of the monitor the window is currently beeing rendered to with vsync, to scale the frametime graph
+		static HWND hWnd = window.getSystemHandle();
 
-		DEVMODE dm;
-		dm.dmSize = sizeof(dm);
+		static MONITORINFOEX monitorInfo = { sizeof(MONITORINFOEX) };
+		GetMonitorInfo(MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST), &monitorInfo);
+
+		static DEVMODE dm = { sizeof(dm) };
 		EnumDisplaySettings(monitorInfo.szDevice, ENUM_CURRENT_SETTINGS, &dm);
-
-		unsigned int refreshRate = dm.dmDisplayFrequency;
 		//end
+		
 
-		ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 2 * 1000.0 / refreshRate, ImGuiCond_Always);
-		ImPlot::PlotLine("Frametime", &frameTimeBuffer.data[0].x, &frameTimeBuffer.data[0].y, frameTimeBuffer.data.size(), 0, frameTimeBuffer.offset, 2 * sizeof(float));
+		static ImPlotAxisFlags xyFlags = ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickLabels;
+		ImPlot::SetupAxes(nullptr, nullptr, xyFlags, xyFlags);
+		ImPlot::SetupAxisLimits(ImAxis_X1, t - 10, t, ImGuiCond_Always);
+		ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 2 * 1000.0 / dm.dmDisplayFrequency, ImGuiCond_Always);
+
+		ImPlot::PlotLine("FrameTime", &frameTimeBuffer.data[0].x, &frameTimeBuffer.data[0].y, frameTimeBuffer.data.size(), 0, frameTimeBuffer.offset, sizeof(ImVec2));
 		ImPlot::EndPlot();
+		ImPlot::PopStyleColor(1); //Reset Transparent Background
 	}
-
+	
 	ImGui::NewLine();
-	ImGui::Text("Debug Options");
-	ImGui::Checkbox("Show Vertecies", &drawDebug);
+	ImGui::Text("Options");
+	ImGui::Checkbox("BoundingBox", &drawDebug);
 	ImGui::End();
-
 }
 
 void Engine::updateFrame() {
@@ -195,9 +191,7 @@ void Engine::renderFrame() {
 	window.clear(sf::Color::Black);
 
 	for (const auto &entity : entities) {
-
 		window.draw(*entity);
-
 		if (drawDebug) {
 			entity->drawDebug(window, sf::RenderStates::Default);
 		}

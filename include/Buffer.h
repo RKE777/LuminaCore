@@ -7,7 +7,7 @@ struct ScrollingBuffer {
     int maxSize;
     int offset;
     ImVector<ImVec2> data;
-    ScrollingBuffer(int max_size = 1200) {
+    ScrollingBuffer(int max_size = 2400) {
         maxSize = max_size;
         offset = 0;
         data.reserve(maxSize);
